@@ -1,0 +1,58 @@
+workspace {
+
+    model {
+        userClientes = person "Clientes" "Usuarios que hacen pedidos y usan la app de Rappi."
+        userConductores = person "Conductores" "Usuarios que ofrecen servicios de transporte y entregas."
+        userNegociosAliados = person "Negocios Aliados" "Negocios que surten los pedidos solicitados por los clientes."
+        userOperadores = person "Operadores" "Usuarios que gestionan conductores y brindan soporte a clientes y conductores."
+
+        system = softwareSystem "Rappi SuperApp" "La mejor superapp de LATAM para pedidos y entregas."{
+            appClientes = container "APP Clientes" "App utilizada por los clientes para hacer pedidos, ver estado y pagar." "Java, Scala"
+            appConductores = container "APP Conductores" "App utilizada por los conductores para registrarse, ingresar ubicación y ofrecer servicios." "Java, Scala"
+            apiGateway  = container "API Gateway" "Rutea las peticiones a los microservicios correspondientes." "Nginx, Spring Cloud Gateway"
+            gestionBackend = container "Gestión Backend" "Aplicación web utilizada por los operadores para dar soporte y gestionar órdenes." "Python"
+            microservicioGestionDemandas = container "Microservicio Gestión de Demandas" "Gestiona las demandas de los clientes." "Java, Scala"
+            microservicioGestionConductores = container "Microservicio Gestión de Conductores" "Registra la geolocalización de los conductores." "Java, Scala"
+            microservicioDespacho = container "Microservicio Despacho" "Asigna conductores a pedidos." "Java, Scala"
+            microservicioPago = container "Microservicio Pago" "Canaliza los pagos de los pedidos." "Java, Scala"
+            microservicioCache = container "Microservicio Cache" "Utiliza MemCache para cargar en memoria el catálogo de negocios y oferta de productos." "MemCache"
+            microservicioAlmacenamiento = container "Microservicio Almacenamiento" "Maneja las bases de datos NoSQL y MySQL para los servicios de pago." "MongoDB, Cassandra, MySQL"
+        }
+
+        userClientes -> system "Hace pedidos, ve estado de pedidos, paga pedidos"
+        userConductores -> system "Ofrece servicios de transporte y entrega"
+        userNegociosAliados -> system "Consulta órdenes, actualiza stock"
+        userOperadores -> system "Gestiona conductores, brinda soporte"
+
+        userClientes -> appClientes "Hace pedidos, ve estado de pedidos, paga pedidos"
+        userConductores -> appConductores "Ofrece servicios de transporte y entrega"
+        userNegociosAliados -> gestionBackend "Consulta órdenes, actualiza stock"
+        userOperadores -> gestionBackend "Gestiona conductores, brinda soporte"
+
+        appClientes -> apiGateway
+        appConductores -> apiGateway
+        gestionBackend -> apiGateway
+
+        apiGateway -> microservicioGestionDemandas
+        apiGateway -> microservicioGestionConductores
+        apiGateway -> microservicioDespacho
+        apiGateway -> microservicioPago
+        apiGateway -> microservicioCache
+        apiGateway -> microservicioAlmacenamiento
+    }
+
+    views {
+        systemContext system {
+            include *
+            title "Diagrama de Contexto - Rappi SuperApp"
+        }
+
+        container system {
+            include *
+            title "Diagrama de Contenedores - Rappi SuperApp"
+        }
+
+        theme default
+    }
+}
+
